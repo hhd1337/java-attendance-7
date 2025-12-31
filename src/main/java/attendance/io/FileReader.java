@@ -43,14 +43,13 @@ public class FileReader {
         InputStream inputStream = getClass().getClassLoader().getResourceAsStream(CSV_FILE_NAME);
         StringToLocalDateTimeConverter converter = new StringToLocalDateTimeConverter();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-            List<LocalDateTime> dateTimes = reader.lines()
+
+            return reader.lines()
                     .skip(1)
                     .filter(line -> !line.isBlank())
                     .map(line -> line.split(DELIMITER))
                     .map(line -> converter.convertToMinute(line[1].trim()))
                     .toList();
-
-            return dateTimes;
         } catch (IOException e) {
             throw new IllegalArgumentException(CSV_FILE_NAME + "파일을 읽는 과정에서 오류가 발생했습니다.");
         }
