@@ -1,6 +1,8 @@
 package attendance.controller;
 
 import attendance.converter.StringToMenuConverter;
+import attendance.domain.Crew;
+import attendance.domain.CrewCatalog;
 import attendance.domain.Menu;
 import attendance.view.InputView;
 
@@ -15,12 +17,22 @@ public class InputHandler {
     }
 
     public Menu inputMenu() {
-        StringToMenuConverter conveter = new StringToMenuConverter();
+        StringToMenuConverter converter = new StringToMenuConverter();
         return inputTemplate.execute(
                 inputView::inputMenu,
                 value -> {
                     value = value.trim();
-                    return conveter.convert(value);
+                    return converter.convert(value);
+                }
+        );
+    }
+
+    public Crew inputNickName(CrewCatalog crewCatalog) {
+        return inputTemplate.execute(
+                inputView::inputNickName,
+                nickName -> {
+                    nickName = nickName.trim();
+                    return crewCatalog.findCrewByName(nickName);
                 }
         );
     }

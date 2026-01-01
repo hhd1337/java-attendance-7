@@ -23,4 +23,8 @@ public class OutputView {
         System.out.println("4. 제적 위험자 확인");
         System.out.println("Q. 종료");
     }
+
+    public void printNickNameInputPrompt() {
+        System.out.println("닉네임을 입력해 주세요.");
+    }
 }
