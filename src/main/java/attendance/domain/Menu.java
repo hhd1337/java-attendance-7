@@ -3,10 +3,10 @@ package attendance.domain;
 import java.util.Arrays;
 
 public enum Menu {
-    MENU_A("1"),
-    MENU_B("2"),
-    MENU_C("3"),
-    MENU_D("4"),
+    INSERT_ATTENDANCE("1"),
+    UPDATE_ATTENDANCE("2"),
+    CHECK_MONTHLY("3"),
+    CHECK_WEEDERS("4"),
     QUIT("Q");
 
     private final String symbol;
