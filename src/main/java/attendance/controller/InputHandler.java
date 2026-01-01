@@ -7,7 +7,8 @@ import attendance.domain.CrewCatalog;
 import attendance.domain.Holiday;
 import attendance.domain.Menu;
 import attendance.view.InputView;
-import attendance.view.mapper.LocalDateTimeToDayMapper;
+import attendance.view.mapper.LocalDateTimeMapper;
+import camp.nextstep.edu.missionutils.DateTimes;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -29,6 +30,7 @@ public class InputHandler {
                 inputView::inputMenu,
                 value -> {
                     value = value.trim();
+                    validateIsTodayAttendingDay(DateTimes.now().toLocalDate());
                     return converter.convert(value);
                 }
         );
@@ -44,7 +46,7 @@ public class InputHandler {
         );
     }
 
-    public LocalDateTime inputArrivedTime(String crewName, LocalDate currentDate) {
+    public LocalDateTime inputArrivedTime(LocalDate currentDate) {
         StringToLocalDateTimeConverter converter = new StringToLocalDateTimeConverter();
         return inputTemplate.execute(
                 inputView::inputArrivedTime,
@@ -52,9 +54,7 @@ public class InputHandler {
                     value = value.trim();
                     LocalTime arrivedTime = converter.convertToTimeMinute(value);
                     validateIsTodayAttendingDay(currentDate);
-                    LocalDateTime dateTime = LocalDateTime.of(currentDate, arrivedTime);
-
-                    return dateTime;
+                    return LocalDateTime.of(currentDate, arrivedTime);
                 }
         );
     }
@@ -65,12 +65,12 @@ public class InputHandler {
         int dayNum = today.getValue();
 
         if (dayNum == 6 || dayNum == 7 || Holiday.findByDateOrNull(currentDate) != null) {
-            LocalDateTimeToDayMapper dateTimeToDayMapper = new LocalDateTimeToDayMapper();
+            LocalDateTimeMapper dateTimeToDayMapper = new LocalDateTimeMapper();
             String dayKor = dateTimeToDayMapper.mapLocalDateToDay(currentDate);
             int month = currentDate.getMonth().getValue();
             int date = currentDate.getDayOfMonth();
 
-            throw new IllegalArgumentException(month + "월" + date + "일 " + dayKor + "요일은 등교일이 아닙니다.");
+            throw new IllegalArgumentException(month + "월 " + date + "일 " + dayKor + "요일은 등교일이 아닙니다.");
         }
     }
 }

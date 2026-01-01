@@ -20,7 +20,7 @@ public class StringToLocalDateTimeConverter implements Converter<String, LocalDa
         try {
             return LocalDateTime.parse(trimmed, MINUTE_FORMATTER);
         } catch (DateTimeParseException e) {
-            throw new IllegalArgumentException("날짜/시간(분) 형식이 올바르지 않습니다. 예) 2025-01-10 10:06");
+            throw new IllegalArgumentException("잘못된 형식을 입력하였습니다.");
         }
     }
 
@@ -29,7 +29,7 @@ public class StringToLocalDateTimeConverter implements Converter<String, LocalDa
         try {
             return LocalTime.parse(trimmed, TIME_MINUTE_FORMATTER);
         } catch (DateTimeParseException e) {
-            throw new IllegalArgumentException("시간(분) 형식이 올바르지 않습니다. 예) 09:59");
+            throw new IllegalArgumentException("잘못된 형식을 입력하였습니다.");
         }
     }
 

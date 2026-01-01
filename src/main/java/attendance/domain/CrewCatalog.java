@@ -17,7 +17,7 @@ public class CrewCatalog {
         return crews.stream()
                 .filter(crew -> crew.getName().equals(name))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("해당 닉네임을 가진 크루가 크루 목록에 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("등록되지 않은 닉네임입니다."));
     }
 
     public void addCrew(Crew crew) {

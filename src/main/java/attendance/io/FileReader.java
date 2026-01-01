@@ -4,6 +4,7 @@ import static attendance.domain.CrewStatus.GOOD;
 
 import attendance.converter.StringToLocalDateTimeConverter;
 import attendance.domain.Crew;
+import attendance.domain.CrewAttendance;
 import attendance.domain.CrewCatalog;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -41,17 +42,21 @@ public class FileReader {
         }
     }
 
-    public List<LocalDateTime> makeAttendances() {
+    public CrewAttendance makeCrewAttendance(String crewName) {
         InputStream inputStream = getClass().getClassLoader().getResourceAsStream(CSV_FILE_NAME);
         StringToLocalDateTimeConverter converter = new StringToLocalDateTimeConverter();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
 
-            return reader.lines()
+            List<LocalDateTime> attendHistory = new ArrayList<>(reader.lines()
                     .skip(1)
                     .filter(line -> !line.isBlank())
+                    .filter(line -> line.contains(crewName)) // 크루원의 이름이 들어있는 줄만 필터링
                     .map(line -> line.split(DELIMITER))
                     .map(line -> converter.convertToMinute(line[1].trim()))
-                    .toList();
+                    .toList()
+            );
+
+            return new CrewAttendance(crewName, attendHistory);
         } catch (IOException e) {
             throw new IllegalArgumentException(CSV_FILE_NAME + "파일을 읽는 과정에서 오류가 발생했습니다.");
         }
