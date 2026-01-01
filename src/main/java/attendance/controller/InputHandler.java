@@ -1,10 +1,17 @@
 package attendance.controller;
 
+import attendance.converter.StringToLocalDateTimeConverter;
 import attendance.converter.StringToMenuConverter;
 import attendance.domain.Crew;
 import attendance.domain.CrewCatalog;
+import attendance.domain.Holiday;
 import attendance.domain.Menu;
 import attendance.view.InputView;
+import attendance.view.mapper.LocalDateTimeToDayMapper;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public class InputHandler {
 
@@ -35,5 +42,35 @@ public class InputHandler {
                     return crewCatalog.findCrewByName(nickName);
                 }
         );
+    }
+
+    public LocalDateTime inputArrivedTime(String crewName, LocalDate currentDate) {
+        StringToLocalDateTimeConverter converter = new StringToLocalDateTimeConverter();
+        return inputTemplate.execute(
+                inputView::inputArrivedTime,
+                value -> {
+                    value = value.trim();
+                    LocalTime arrivedTime = converter.convertToTimeMinute(value);
+                    validateIsTodayAttendingDay(currentDate);
+                    LocalDateTime dateTime = LocalDateTime.of(currentDate, arrivedTime);
+
+                    return dateTime;
+                }
+        );
+    }
+
+    // 토, 일, 공휴일 예외처리
+    private void validateIsTodayAttendingDay(LocalDate currentDate) {
+        DayOfWeek today = currentDate.getDayOfWeek();
+        int dayNum = today.getValue();
+
+        if (dayNum == 6 || dayNum == 7 || Holiday.findByDateOrNull(currentDate) != null) {
+            LocalDateTimeToDayMapper dateTimeToDayMapper = new LocalDateTimeToDayMapper();
+            String dayKor = dateTimeToDayMapper.mapLocalDateToDay(currentDate);
+            int month = currentDate.getMonth().getValue();
+            int date = currentDate.getDayOfMonth();
+
+            throw new IllegalArgumentException(month + "월" + date + "일 " + dayKor + "요일은 등교일이 아닙니다.");
+        }
     }
 }

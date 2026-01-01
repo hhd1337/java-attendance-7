@@ -48,5 +48,9 @@ public class AttendanceController {
         outputView.printNickNameInputPrompt();
         Crew crew = inputHandler.inputNickName(crewCatalog);
 
+        outputView.printArrivedTimeInputPrompt();
+        inputHandler.inputArrivedTime(crew.getName(), DateTimes.now().toLocalDate());
+
+
     }
 }
