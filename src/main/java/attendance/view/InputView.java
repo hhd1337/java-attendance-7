@@ -15,4 +15,5 @@ public class InputView {
     public String inputArrivedTime() {
         return Console.readLine();
     }
+
 }

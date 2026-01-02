@@ -39,4 +39,8 @@ public class OutputView {
         System.out.println(prompt + " (" + AttendStatus + ")");
     }
 
+    public void printNickNameInputForUpdatePrompt() {
+        System.out.println("출석을 수정하려는 크루의 닉네임을 입력해 주세요.");
+    }
+
 }

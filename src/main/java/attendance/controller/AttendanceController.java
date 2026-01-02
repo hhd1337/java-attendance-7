@@ -43,7 +43,7 @@ public class AttendanceController {
             runInsertAttendance(crewCatalog, crewAttendances);
         }
         if (menu == Menu.UPDATE_ATTENDANCE) {
-            // runUpdateAttendance();
+            runUpdateAttendance(crewCatalog);
         }
         if (menu == Menu.CHECK_MONTHLY) {
             // runCheckAttendanceMonthly();
@@ -51,6 +51,22 @@ public class AttendanceController {
         if (menu == Menu.CHECK_WEEDERS) {
             // runCheckWeeders();
         }
+    }
+
+    private void runUpdateAttendance(CrewCatalog crewCatalog) {
+        outputView.printNickNameInputForUpdatePrompt();
+        Crew crew = inputHandler.inputNickName(crewCatalog);
+
+
+    }
+
+    private CrewAttendances loadCrewAttendances(CrewCatalog crewCatalog, FileReader fileReader) {
+        List<CrewAttendance> crewAttendanceList = new ArrayList<>();
+        for (Crew crew : crewCatalog.getCrewList()) {
+            CrewAttendance crewAttendance = fileReader.makeCrewAttendance(crew.getName());
+            crewAttendanceList.add(crewAttendance);
+        }
+        return new CrewAttendances(crewAttendanceList);
     }
 
     private void runInsertAttendance(CrewCatalog crewCatalog, CrewAttendances crewAttendances) {
@@ -70,13 +86,5 @@ public class AttendanceController {
         outputView.printAttendResultPrompt(arrivedTime, attendanceState.getKorState());
     }
 
-    private CrewAttendances loadCrewAttendances(CrewCatalog crewCatalog, FileReader fileReader) {
-        List<CrewAttendance> crewAttendanceList = new ArrayList<>();
-        for (Crew crew : crewCatalog.getCrewList()) {
-            CrewAttendance crewAttendance = fileReader.makeCrewAttendance(crew.getName());
-            crewAttendanceList.add(crewAttendance);
-        }
-        return new CrewAttendances(crewAttendanceList);
-    }
 
 }
