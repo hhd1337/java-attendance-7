@@ -48,11 +48,17 @@ public class AttendanceController {
             runUpdateAttendance(crewCatalog, crewAttendances);
         }
         if (menu == Menu.CHECK_MONTHLY) {
-            // runCheckAttendanceMonthly();
+            runCheckAttendanceMonthly(crewCatalog);
         }
         if (menu == Menu.CHECK_WEEDERS) {
             // runCheckWeeders();
         }
+    }
+
+    private void runCheckAttendanceMonthly(CrewCatalog crewCatalog) {
+        outputView.printNickNameInputPrompt();
+        Crew crew = inputHandler.inputNickName(crewCatalog);
+
     }
 
     private CrewAttendances loadCrewAttendances(CrewCatalog crewCatalog, FileReader fileReader) {
