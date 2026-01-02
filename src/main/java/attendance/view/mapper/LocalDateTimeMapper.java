@@ -36,4 +36,8 @@ public class LocalDateTimeMapper {
 
         return localDateTimeFormat;
     }
+
+    public String mapDateTimeToStringFormat(LocalDateTime dateTime) {
+        return dateTime.format(DateTimeFormatter.ofPattern("HH:mm"));
+    }
 }

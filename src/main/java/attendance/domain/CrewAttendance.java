@@ -4,6 +4,7 @@ import static attendance.domain.AttendanceTimeRule.MON;
 import static attendance.domain.AttendanceTimeRule.TUES_TO_FRI;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -75,5 +76,17 @@ public class CrewAttendance {
 
     public String getCrewName() {
         return this.crewName;
+    }
+
+    public LocalDateTime findDateTimeByDateOrNull(LocalDate updateDate) {
+        try {
+            return attendanceHistory.stream()
+                    .filter(unit -> unit.toLocalDate().isEqual(updateDate))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException(""));
+        } catch (IllegalArgumentException e) {
+            System.out.println("여기까진 들어온다다다다ㅏ닫");
+            return null;
+        }
     }
 }

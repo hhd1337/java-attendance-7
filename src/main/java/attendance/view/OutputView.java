@@ -50,4 +50,13 @@ public class OutputView {
     public void printUpdateTimeInputPrompt() {
         System.out.println("언제로 변경하겠습니까?");
     }
+
+    // 12월 03일 화요일 10:07 (지각) -> 09:58 (출석) 수정 완료!
+    public void printUpdateSuccessPrompt(LocalDateTime oldDateTime, String oldAttendStatus, LocalDateTime newDateTime,
+                                         String newAttendStatus) {
+        String oldPrompt = mapper.mapDateTimeToAttendResultFormat(oldDateTime);
+        String newTimeString = mapper.mapDateTimeToStringFormat(newDateTime);
+        System.out.println(
+                oldPrompt + " (" + oldAttendStatus + ") -> " + newTimeString + " (" + newAttendStatus + ") 수정 완료!");
+    }
 }

@@ -1,7 +1,6 @@
 package attendance.controller;
 
 import attendance.converter.Converter;
-import attendance.util.ErrorMessage;
 import attendance.view.OutputView;
 import java.util.function.Supplier;
 
@@ -20,7 +19,7 @@ public class IteratorInputTemplate {
                 return converter.convert(input);
             } catch (IllegalArgumentException e) {
                 outputView.printErrorMessage(e);
-                throw new IllegalArgumentException(ErrorMessage.PREFIX + e.getMessage());
+                //throw new IllegalArgumentException(ErrorMessage.PREFIX + e.getMessage());
             }
         }
     }
