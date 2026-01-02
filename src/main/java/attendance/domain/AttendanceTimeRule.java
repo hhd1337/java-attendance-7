@@ -30,12 +30,13 @@ public enum AttendanceTimeRule {
     }
 
     private boolean isCrewLate(LocalTime time) {
-        return time.isAfter(this.startTime.plusMinutes(5)) && time.isBefore(
-                CampusOperatingHours.DEFAULT.getEnd()); // 시작시간 5분뒤 이후, 운영마감시간 전에 왔는지
+        return time.isAfter(this.startTime.plusMinutes(5)) &&
+                time.isBefore(this.startTime.plusMinutes(30)); // 교육시작시간 5분뒤부터, 30분전에 왔는지
     }
 
+    // 교육시작시간 30분 뒤부터 결석으로 간주
     private boolean isCrewAbsent(LocalTime time) {
-        return time.isAfter(this.endTime) && time.isBefore(
+        return time.isAfter(this.startTime.plusMinutes(30)) && time.isBefore(
                 CampusOperatingHours.DEFAULT.getEnd()); // 교육시간 이후, 운영시간 전에 왔는지
     }
 
