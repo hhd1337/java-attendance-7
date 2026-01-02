@@ -8,6 +8,7 @@ import attendance.domain.CrewAttendances;
 import attendance.domain.CrewCatalog;
 import attendance.domain.Menu;
 import attendance.io.FileReader;
+import attendance.util.ErrorMessage;
 import attendance.view.OutputView;
 import camp.nextstep.edu.missionutils.DateTimes;
 import java.time.LocalDate;
@@ -62,11 +63,12 @@ public class AttendanceController {
         LocalDate date = inputHandler.inputDateForMonth(DateTimes.now().toLocalDate());
 
         outputView.printUpdateTimeInputPrompt();
-        LocalDateTime dateTime = inputHandler.inputUpdateTime(date);
-
-        // crewAttendance에 수정
-        CrewAttendance crewAttendance = crewAttendances.findCrewAttendanceByName(crew.getName());
-        crewAttendance.updateAttendance(dateTime);
+        retryUntilValid(() -> {
+            LocalDateTime dateTime = inputHandler.inputUpdateTime(date);
+            // crewAttendance에 수정
+            CrewAttendance crewAttendance = crewAttendances.findCrewAttendanceByName(crew.getName());
+            crewAttendance.updateAttendance(dateTime);
+        });
     }
 
     private CrewAttendances loadCrewAttendances(CrewCatalog crewCatalog, FileReader fileReader) {
@@ -93,6 +95,17 @@ public class AttendanceController {
         crewAttendance.addAttendance(arrivedTime);
         // 출력하기
         outputView.printAttendResultPrompt(arrivedTime, attendanceState.getKorState());
+    }
+
+    private void retryUntilValid(Runnable action) {
+        while (true) {
+            try {
+                action.run();
+                return;
+            } catch (IllegalArgumentException e) {
+                System.out.println(ErrorMessage.PREFIX + e.getMessage());
+            }
+        }
     }
 
 

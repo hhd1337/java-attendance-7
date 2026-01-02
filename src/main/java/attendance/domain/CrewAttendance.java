@@ -66,9 +66,9 @@ public class CrewAttendance {
             // newDateTime과 날짜가 같은 레코드를 newDateTime 으로 치환
             if (attendanceHistory.get(index).toLocalDate().isEqual(newDateTime.toLocalDate())) {
                 attendanceHistory.set(index, newDateTime);
+                calculateTotalLateAndAbsence(attendanceHistory);
                 return;
             }
-            calculateTotalLateAndAbsence(attendanceHistory);
         }
         throw new IllegalArgumentException("수정하려는 날짜에 해당 크루의 원래 출석기록이 없습니다.");
     }
