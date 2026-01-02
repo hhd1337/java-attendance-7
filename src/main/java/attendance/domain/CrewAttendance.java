@@ -61,6 +61,18 @@ public class CrewAttendance {
         attendanceHistory.add(dateTime);
     }
 
+    public void updateAttendance(LocalDateTime newDateTime) {
+        for (int index = 0; index < attendanceHistory.size(); index++) {
+            // newDateTime과 날짜가 같은 레코드를 newDateTime 으로 치환
+            if (attendanceHistory.get(index).toLocalDate().isEqual(newDateTime.toLocalDate())) {
+                attendanceHistory.set(index, newDateTime);
+                return;
+            }
+            calculateTotalLateAndAbsence(attendanceHistory);
+        }
+        throw new IllegalArgumentException("수정하려는 날짜에 해당 크루의 원래 출석기록이 없습니다.");
+    }
+
     public String getCrewName() {
         return this.crewName;
     }

@@ -44,7 +44,7 @@ public class AttendanceController {
             runInsertAttendance(crewCatalog, crewAttendances);
         }
         if (menu == Menu.UPDATE_ATTENDANCE) {
-            runUpdateAttendance(crewCatalog);
+            runUpdateAttendance(crewCatalog, crewAttendances);
         }
         if (menu == Menu.CHECK_MONTHLY) {
             // runCheckAttendanceMonthly();
@@ -54,14 +54,19 @@ public class AttendanceController {
         }
     }
 
-    private void runUpdateAttendance(CrewCatalog crewCatalog) {
+    private void runUpdateAttendance(CrewCatalog crewCatalog, CrewAttendances crewAttendances) {
         outputView.printNickNameInputForUpdatePrompt();
         Crew crew = inputHandler.inputNickName(crewCatalog);
 
         outputView.printDateForMonthInputPrompt();
         LocalDate date = inputHandler.inputDateForMonth(DateTimes.now().toLocalDate());
 
+        outputView.printUpdateTimeInputPrompt();
+        LocalDateTime dateTime = inputHandler.inputUpdateTime(date);
 
+        // crewAttendance에 수정
+        CrewAttendance crewAttendance = crewAttendances.findCrewAttendanceByName(crew.getName());
+        crewAttendance.updateAttendance(dateTime);
     }
 
     private CrewAttendances loadCrewAttendances(CrewCatalog crewCatalog, FileReader fileReader) {

@@ -47,4 +47,7 @@ public class OutputView {
         System.out.println("수정하려는 날짜(일)를 입력해 주세요.");
     }
 
+    public void printUpdateTimeInputPrompt() {
+        System.out.println("언제로 변경하겠습니까?");
+    }
 }

@@ -73,6 +73,18 @@ public class InputHandler {
         );
     }
 
+    public LocalDateTime inputUpdateTime(LocalDate currentDate) {
+        StringToLocalDateTimeConverter converter = new StringToLocalDateTimeConverter();
+        return inputTemplate.execute(
+                inputView::inputUpdateTime,
+                value -> {
+                    value = value.trim();
+                    LocalTime updateTime = converter.convertToTimeMinute(value);
+                    return LocalDateTime.of(currentDate, updateTime);
+                }
+        );
+    }
+
     // 토, 일, 공휴일 예외처리
     private void validateIsTodayAttendingDay(LocalDate currentDate) {
         DayOfWeek today = currentDate.getDayOfWeek();
