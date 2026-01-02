@@ -1,5 +1,6 @@
 package attendance.controller;
 
+import attendance.converter.StringToIntConverter;
 import attendance.converter.StringToLocalDateTimeConverter;
 import attendance.converter.StringToMenuConverter;
 import attendance.domain.Crew;
@@ -59,6 +60,19 @@ public class InputHandler {
         );
     }
 
+    public LocalDate inputDateForMonth(LocalDate currentDate) {
+        StringToIntConverter converter = new StringToIntConverter();
+        return inputTemplate.execute(
+                inputView::inputDateForMonth,
+                value -> {
+                    value = value.trim();
+                    int updateDateForMonth = converter.convert(value);
+                    validateDayOfMonthRange(updateDateForMonth, currentDate);
+                    return LocalDate.of(currentDate.getYear(), currentDate.getMonth(), updateDateForMonth);
+                }
+        );
+    }
+
     // 토, 일, 공휴일 예외처리
     private void validateIsTodayAttendingDay(LocalDate currentDate) {
         DayOfWeek today = currentDate.getDayOfWeek();
@@ -73,4 +87,14 @@ public class InputHandler {
             throw new IllegalArgumentException(month + "월 " + date + "일 " + dayKor + "요일은 등교일이 아닙니다.");
         }
     }
+
+    // 현재날짜로 마지막일을 검증 (요구사항에 수정할 월을 받지 않음)
+    // value가 현재 월에 포함되는 숫자인지(1~30,1~31,1~28) 검증함.
+    private void validateDayOfMonthRange(int value, LocalDate currentDate) {
+        LocalDate lastDate = currentDate.withDayOfMonth(currentDate.lengthOfMonth());
+        if (value < 1 || value > lastDate.getDayOfMonth()) {
+            throw new IllegalArgumentException("현재 월에 포함되는 날짜(일)를 입력해주세요.");
+        }
+    }
+
 }

@@ -16,4 +16,7 @@ public class InputView {
         return Console.readLine();
     }
 
+    public String inputDateForMonth() {
+        return Console.readLine();
+    }
 }

@@ -10,6 +10,7 @@ import attendance.domain.Menu;
 import attendance.io.FileReader;
 import attendance.view.OutputView;
 import camp.nextstep.edu.missionutils.DateTimes;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +57,9 @@ public class AttendanceController {
     private void runUpdateAttendance(CrewCatalog crewCatalog) {
         outputView.printNickNameInputForUpdatePrompt();
         Crew crew = inputHandler.inputNickName(crewCatalog);
+
+        outputView.printDateForMonthInputPrompt();
+        LocalDate date = inputHandler.inputDateForMonth(DateTimes.now().toLocalDate());
 
 
     }
