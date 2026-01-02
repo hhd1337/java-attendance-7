@@ -37,6 +37,20 @@ public class LocalDateTimeMapper {
         return localDateTimeFormat;
     }
 
+    public String mapDateTimeToNoAttendResultFormat(LocalDate date) {
+        String[] day = {"월", "화", "수", "목", "금", "토", "일"};
+
+        DayOfWeek dayOfWeek = date.getDayOfWeek();
+        int dayNum = dayOfWeek.getValue();
+        String dayKor = day[dayNum - 1];
+
+        // 12월 13일 금요일 --:-- (결석)
+        String localDateTimeFormat = date.format(
+                DateTimeFormatter.ofPattern("MM월 dd일 " + dayKor + "요일" + " --:--"));
+
+        return localDateTimeFormat;
+    }
+
     public String mapDateTimeToStringFormat(LocalDateTime dateTime) {
         return dateTime.format(DateTimeFormatter.ofPattern("HH:mm"));
     }

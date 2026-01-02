@@ -13,6 +13,7 @@ public class CrewAttendance {
     private String crewName;
     private List<LocalDateTime> attendanceHistory;
 
+    private int successCount;
     private int lateCount;
     private int actualAbsenceCount; // 순수 실제 지각횟수 : 지각 3회 결석1회로 보지 않음
     private int calculatedAbsenceCount; // 순지각 3회 결석1회로 본 결석 횟수
@@ -20,10 +21,11 @@ public class CrewAttendance {
     public CrewAttendance(String crewName, List<LocalDateTime> attendanceHistory) {
         this.crewName = crewName;
         this.attendanceHistory = attendanceHistory;
-        calculateTotalLateAndAbsence(attendanceHistory);
+        calculateTotalLateAndAbsence();
     }
 
-    public void calculateTotalLateAndAbsence(List<LocalDateTime> attendanceHistory) {
+    public void calculateTotalLateAndAbsence() {
+        this.successCount = 0;
         this.lateCount = 0;
         this.actualAbsenceCount = 0;
         this.calculatedAbsenceCount = 0;
@@ -46,6 +48,9 @@ public class CrewAttendance {
             if (judgedAttendanceState == AttendanceState.ABSENCE) {
                 this.actualAbsenceCount++;
             }
+            if (judgedAttendanceState == AttendanceState.SUCCESS) {
+                this.successCount++;
+            }
         }
         if (dayNum >= 2 && dayNum <= 5) { // 화~금요일
             judgedAttendanceState = TUES_TO_FRI.judgeAttendance(time);
@@ -54,6 +59,9 @@ public class CrewAttendance {
             }
             if (judgedAttendanceState == AttendanceState.ABSENCE) {
                 this.actualAbsenceCount++;
+            }
+            if (judgedAttendanceState == AttendanceState.SUCCESS) {
+                this.successCount++;
             }
         }
     }
@@ -67,21 +75,66 @@ public class CrewAttendance {
             // newDateTime과 날짜가 같은 레코드를 newDateTime 으로 치환
             if (attendanceHistory.get(index).toLocalDate().isEqual(newDateTime.toLocalDate())) {
                 attendanceHistory.set(index, newDateTime);
-                calculateTotalLateAndAbsence(attendanceHistory);
+                calculateTotalLateAndAbsence();
                 return;
             }
         }
         throw new IllegalArgumentException("수정하려는 날짜에 해당 크루의 원래 출석기록이 없습니다.");
     }
 
+    public LocalDateTime findDateTimeByDateOrNull(LocalDate updateDate) {
+        try {
+            return attendanceHistory.stream()
+                    .filter(unit -> unit.toLocalDate().isEqual(updateDate))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("해당 날짜에 해당 크루의 원래 출석기록이 없습니다."));
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    public void encreaseSuccessCount() {
+        this.successCount++;
+    }
+
+    public void encreaseLateCount() {
+        this.lateCount++;
+    }
+
+    public void encreaseActualAbsenceCount() {
+        this.actualAbsenceCount++;
+    }
+
+    public void initCountsToZero() {
+        this.successCount = 0;
+        this.lateCount = 0;
+        this.actualAbsenceCount = 0;
+        this.calculatedAbsenceCount = 0;
+    }
+
     public String getCrewName() {
         return this.crewName;
     }
 
-    public LocalDateTime findDateTimeByDateOrNull(LocalDate updateDate) {
-        return attendanceHistory.stream()
-                .filter(unit -> unit.toLocalDate().isEqual(updateDate))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("해당 날짜에 해당 크루의 원래 출석기록이 없습니다."));
+    public List<LocalDateTime> getAttendanceHistory() {
+        return this.attendanceHistory;
     }
+
+    public int getSuccessCount() {
+        return this.successCount;
+    }
+
+    public int getLateCount() {
+        return this.lateCount;
+    }
+
+    public int getActualAbsenceCount() {
+        return this.actualAbsenceCount;
+    }
+
+    public int getCalculatedAbsenceCount() {
+        calculatedAbsenceCount = actualAbsenceCount + (lateCount / 3);
+        return calculatedAbsenceCount;
+    }
+
 }

@@ -1,7 +1,9 @@
 package attendance.view;
 
+import attendance.domain.CrewStatus;
 import attendance.util.ErrorMessage;
 import attendance.view.mapper.LocalDateTimeMapper;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class OutputView {
@@ -39,6 +41,11 @@ public class OutputView {
         System.out.println(prompt + " (" + AttendStatus + ")");
     }
 
+    public void printAttendResultPromptForNoHistory(LocalDate date, String AttendStatus) {
+        String prompt = mapper.mapDateTimeToNoAttendResultFormat(date);
+        System.out.println(prompt + " (" + AttendStatus + ")");
+    }
+
     public void printNickNameInputForUpdatePrompt() {
         System.out.println("출석을 수정하려는 크루의 닉네임을 입력해 주세요.");
     }
@@ -58,5 +65,16 @@ public class OutputView {
         String newTimeString = mapper.mapDateTimeToStringFormat(newDateTime);
         System.out.println(
                 oldPrompt + " (" + oldAttendStatus + ") -> " + newTimeString + " (" + newAttendStatus + ") 수정 완료!");
+    }
+
+    public void printAttendanceStateOfMonth(int success, int late, int absence, String crewStatus) {
+        System.out.println();
+        System.out.println("출석: " + success + "회");
+        System.out.println("지각: " + late + "회");
+        System.out.println("결석: " + absence + "회");
+        if (!crewStatus.equals(CrewStatus.GOOD.getCrewStatusKor())) {
+            System.out.println();
+            System.out.println(crewStatus + " 대상자입니다.");
+        }
     }
 }

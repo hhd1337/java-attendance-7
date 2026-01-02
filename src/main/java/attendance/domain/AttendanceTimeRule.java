@@ -2,7 +2,7 @@ package attendance.domain;
 
 import static attendance.domain.Holiday.CHRISTMAS;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 public enum AttendanceTimeRule {
@@ -40,9 +40,9 @@ public enum AttendanceTimeRule {
                 CampusOperatingHours.DEFAULT.getEnd()); // 교육시간 이후, 운영시간 전에 왔는지
     }
 
-    public static AttendanceTimeRule from(LocalDateTime dateTime) {
-        int dayInt = dateTime.getDayOfWeek().getValue();
-        if (dateTime.toLocalDate().isEqual(CHRISTMAS.getDate())) {
+    public static AttendanceTimeRule from(LocalDate date) {
+        int dayInt = date.getDayOfWeek().getValue();
+        if (date.isEqual(CHRISTMAS.getDate())) {
             return HOLIDAY;
         }
         if (dayInt == 1) { // 월요일일 경우
@@ -52,7 +52,7 @@ public enum AttendanceTimeRule {
             return TUES_TO_FRI;
         }
         if (dayInt == 6 || dayInt == 7) {
-            return HOLIDAY;
+            return WEEKEND;
         }
         throw new IllegalArgumentException("해당 날짜로 요일을 판단할 수 없습니다.");
     }
