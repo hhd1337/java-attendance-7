@@ -84,35 +84,36 @@ public class AttendanceController {
     private void runUpdateAttendance(CrewCatalog crewCatalog, CrewAttendances crewAttendances) {
         outputView.printNickNameInputForUpdatePrompt();
         Crew crew = inputHandler.inputNickName(crewCatalog);
-
-        outputView.printDateForMonthInputPrompt();
-        LocalDate updateDate = inputHandler.inputDateForMonth(DateTimes.now().toLocalDate());
-
-        outputView.printUpdateTimeInputPrompt();
-
-        // oldDateTime, oldAttendStatus 구함
         CrewAttendance crewAttendance = crewAttendances.findCrewAttendanceByName(crew.getName());
-        LocalDateTime oldDateTime = crewAttendance.findDateTimeByDateOrNull(
-                updateDate); // if (oldDateTime == null) 방어 해야함
-//        if (oldDateTime == null) {
-//            System.out.println("좆됐다다다다다ㅏ다다다다다ㅏ닫");
-//        }
-        AttendanceState oldAttendanceState = AttendanceTimeRule.from(oldDateTime)
-                .judgeAttendance(oldDateTime.toLocalTime());
 
-        // newDateTime 구함
-        LocalDateTime newDateTime = inputHandler.inputUpdateTime(updateDate);
+        retryUntilValid(() -> {
+            outputView.printDateForMonthInputPrompt();
+            LocalDate updateDate = inputHandler.inputDateForMonth(DateTimes.now().toLocalDate());
 
-        // crewAttendance에 수정
-        crewAttendance.updateAttendance(newDateTime);
+            outputView.printUpdateTimeInputPrompt();
 
-        // newAttendStatus 구함
-        AttendanceState newAttendanceState = AttendanceTimeRule.from(newDateTime)
-                .judgeAttendance(newDateTime.toLocalTime());
+            // oldDateTime, oldAttendStatus 구함
+            LocalDateTime oldDateTime = crewAttendance.findDateTimeByDateOrNull(updateDate);
+            if (oldDateTime == null) {
+                throw new IllegalArgumentException(ErrorMessage.PREFIX + "수정하려는 날짜에 해당 크루의 출석 기록이 없습니다.");
+            }
+            AttendanceState oldAttendanceState = AttendanceTimeRule.from(oldDateTime)
+                    .judgeAttendance(oldDateTime.toLocalTime());
 
-        // 포맷에 맞게 출력
-        outputView.printUpdateSuccessPrompt(oldDateTime, oldAttendanceState.getKorState(), newDateTime,
-                newAttendanceState.getKorState());
+            // newDateTime 구함
+            LocalDateTime newDateTime = inputHandler.inputUpdateTime(updateDate);
+
+            // crewAttendance에 수정
+            crewAttendance.updateAttendance(newDateTime);
+
+            // newAttendStatus 구함
+            AttendanceState newAttendanceState = AttendanceTimeRule.from(newDateTime)
+                    .judgeAttendance(newDateTime.toLocalTime());
+
+            // 포맷에 맞게 출력
+            outputView.printUpdateSuccessPrompt(oldDateTime, oldAttendanceState.getKorState(), newDateTime,
+                    newAttendanceState.getKorState());
+        });
     }
 
     private void retryUntilValid(Runnable action) {
@@ -126,6 +127,4 @@ public class AttendanceController {
             }
         }
     }
-
-
 }

@@ -79,14 +79,9 @@ public class CrewAttendance {
     }
 
     public LocalDateTime findDateTimeByDateOrNull(LocalDate updateDate) {
-        try {
-            return attendanceHistory.stream()
-                    .filter(unit -> unit.toLocalDate().isEqual(updateDate))
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException(""));
-        } catch (IllegalArgumentException e) {
-            System.out.println("여기까진 들어온다다다다ㅏ닫");
-            return null;
-        }
+        return attendanceHistory.stream()
+                .filter(unit -> unit.toLocalDate().isEqual(updateDate))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("해당 날짜에 해당 크루의 원래 출석기록이 없습니다."));
     }
 }
