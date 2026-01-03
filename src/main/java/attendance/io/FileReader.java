@@ -6,6 +6,7 @@ import attendance.converter.StringToLocalDateTimeConverter;
 import attendance.domain.Crew;
 import attendance.domain.CrewAttendance;
 import attendance.domain.CrewCatalog;
+import camp.nextstep.edu.missionutils.DateTimes;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,7 +57,7 @@ public class FileReader {
                     .toList()
             );
 
-            return new CrewAttendance(crewName, attendHistory);
+            return new CrewAttendance(crewName, attendHistory, DateTimes.now());
         } catch (IOException e) {
             throw new IllegalArgumentException(CSV_FILE_NAME + "파일을 읽는 과정에서 오류가 발생했습니다.");
         }

@@ -31,7 +31,9 @@ public class InputHandler {
                 inputView::inputMenu,
                 value -> {
                     value = value.trim();
-                    validateIsTodayAttendingDay(DateTimes.now().toLocalDate());
+                    if (value.equals(Menu.INSERT_ATTENDANCE.getSymbol())) {
+                        validateIsTodayAttendingDay(DateTimes.now().toLocalDate());
+                    }
                     return converter.convert(value);
                 }
         );

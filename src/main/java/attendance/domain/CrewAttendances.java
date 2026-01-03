@@ -16,4 +16,8 @@ public class CrewAttendances {
                 .orElseThrow(() -> new IllegalArgumentException("해당 크루의 출석을 조회할 수 없습니다."));
     }
 
+    public List<CrewAttendance> getCrewAttendances() {
+        return this.crewAttendances;
+    }
+
 }

@@ -2,6 +2,7 @@ package attendance.view;
 
 import attendance.domain.CrewStatus;
 import attendance.util.ErrorMessage;
+import attendance.view.dto.WeedableCrewDto;
 import attendance.view.mapper.LocalDateTimeMapper;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -75,6 +76,20 @@ public class OutputView {
         if (!crewStatus.equals(CrewStatus.GOOD.getCrewStatusKor())) {
             System.out.println();
             System.out.println(crewStatus + " 대상자입니다.");
+        }
+    }
+
+    public void printWeedableCrewHeader() {
+        System.out.println("제적 위험자 조회 결과");
+    }
+
+    // - 빙티: 결석 3회, 지각 4회 (면담)
+    public void printWeedableCrewBody(WeedableCrewDto dto) {
+        String crewStatus = dto.getCrewStatus();
+        if (!crewStatus.equals(CrewStatus.GOOD.getCrewStatusKor())) {
+            System.out.println(
+                    "- " + dto.getName() + ": 결석 " + dto.getAbsenceCount() + "회, 지각 " + dto.getLateCount() + "회 ("
+                            + crewStatus + ")");
         }
     }
 }

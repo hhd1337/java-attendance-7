@@ -1,67 +1,61 @@
 package attendance.domain;
 
-import static attendance.domain.AttendanceTimeRule.MON;
-import static attendance.domain.AttendanceTimeRule.TUES_TO_FRI;
+import static attendance.domain.AttendanceState.ABSENCE;
+import static attendance.domain.AttendanceState.LATE;
+import static attendance.domain.AttendanceState.SUCCESS;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 
 public class CrewAttendance {
     private String crewName;
-    private List<LocalDateTime> attendanceHistory;
+    private final List<LocalDateTime> attendanceHistory;
 
     private int successCount;
     private int lateCount;
     private int actualAbsenceCount; // 순수 실제 지각횟수 : 지각 3회 결석1회로 보지 않음
     private int calculatedAbsenceCount; // 순지각 3회 결석1회로 본 결석 횟수
 
-    public CrewAttendance(String crewName, List<LocalDateTime> attendanceHistory) {
+    public CrewAttendance(String crewName, List<LocalDateTime> attendanceHistory, LocalDateTime currDateTime) {
         this.crewName = crewName;
         this.attendanceHistory = attendanceHistory;
-        calculateTotalLateAndAbsence();
+        calculateAndSetCounts(currDateTime);
     }
 
-    public void calculateTotalLateAndAbsence() {
-        this.successCount = 0;
-        this.lateCount = 0;
-        this.actualAbsenceCount = 0;
-        this.calculatedAbsenceCount = 0;
+    public void calculateAndSetCounts(LocalDateTime currDateTime) {
+        initCountsToZero(); // 0으로 이 크루의 counts 다 초기화
+        // 1일부터 어제날짜까지 순회
+        for (LocalDate indexDate = currDateTime.toLocalDate().withDayOfMonth(1);
+             indexDate.isBefore(currDateTime.toLocalDate());
+             indexDate = indexDate.plusDays(1)) {
 
-        attendanceHistory.forEach(this::calculateLateAndAbsence);
-        calculatedAbsenceCount = actualAbsenceCount + (lateCount / 3);
-    }
+            // date가 HOLIDAY || WEEKEND 일때는 넘어감.
+            if (AttendanceTimeRule.from(indexDate) == AttendanceTimeRule.HOLIDAY
+                    || AttendanceTimeRule.from(indexDate) == AttendanceTimeRule.WEEKEND) {
+                continue;
+            }
 
-    public void calculateLateAndAbsence(LocalDateTime dateTime) {
-        DayOfWeek day = dateTime.getDayOfWeek();
-        int dayNum = day.getValue();
-        LocalTime time = dateTime.toLocalTime();
-        AttendanceState judgedAttendanceState;
+            // 당일 출석기록 찾음
+            LocalDateTime indexDateTime = findDateTimeByDateOrNull(indexDate);
 
-        if (dayNum == 1) { // 월요일
-            judgedAttendanceState = MON.judgeAttendance(time);
-            if (judgedAttendanceState == AttendanceState.LATE) {
-                this.lateCount++;
+            // 해당 크루의 ActualAbsenceCount 증가
+            if (indexDateTime == null) {
+                increaseActualAbsenceCount();
             }
-            if (judgedAttendanceState == AttendanceState.ABSENCE) {
-                this.actualAbsenceCount++;
-            }
-            if (judgedAttendanceState == AttendanceState.SUCCESS) {
-                this.successCount++;
-            }
-        }
-        if (dayNum >= 2 && dayNum <= 5) { // 화~금요일
-            judgedAttendanceState = TUES_TO_FRI.judgeAttendance(time);
-            if (judgedAttendanceState == AttendanceState.LATE) {
-                this.lateCount++;
-            }
-            if (judgedAttendanceState == AttendanceState.ABSENCE) {
-                this.actualAbsenceCount++;
-            }
-            if (judgedAttendanceState == AttendanceState.SUCCESS) {
-                this.successCount++;
+            // 이번날짜(indexDateTime)가 출석부에 있으면 각 상태에 따라 증가시킴
+            if (indexDateTime != null) {
+                AttendanceState attendanceState = AttendanceTimeRule.from(indexDate)
+                        .judgeAttendance(indexDateTime.toLocalTime());
+                if (attendanceState == SUCCESS) {
+                    increaseSuccessCount();
+                }
+                if (attendanceState == LATE) {
+                    increaseLateCount();
+                }
+                if (attendanceState == ABSENCE) {
+                    increaseActualAbsenceCount();
+                }
             }
         }
     }
@@ -75,7 +69,7 @@ public class CrewAttendance {
             // newDateTime과 날짜가 같은 레코드를 newDateTime 으로 치환
             if (attendanceHistory.get(index).toLocalDate().isEqual(newDateTime.toLocalDate())) {
                 attendanceHistory.set(index, newDateTime);
-                calculateTotalLateAndAbsence();
+                // calculateTotalLateAndAbsence();
                 return;
             }
         }
@@ -93,15 +87,15 @@ public class CrewAttendance {
         }
     }
 
-    public void encreaseSuccessCount() {
+    public void increaseSuccessCount() {
         this.successCount++;
     }
 
-    public void encreaseLateCount() {
+    public void increaseLateCount() {
         this.lateCount++;
     }
 
-    public void encreaseActualAbsenceCount() {
+    public void increaseActualAbsenceCount() {
         this.actualAbsenceCount++;
     }
 

@@ -15,10 +15,13 @@ import attendance.domain.Menu;
 import attendance.io.FileReader;
 import attendance.util.ErrorMessage;
 import attendance.view.OutputView;
+import attendance.view.dto.WeedableCrewDto;
+import attendance.view.dto.WeedableCrewDtos;
 import camp.nextstep.edu.missionutils.DateTimes;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class AttendanceController {
@@ -56,8 +59,46 @@ public class AttendanceController {
             runCheckAttendanceMonthly(crewCatalog, crewAttendances, currDateTime);
         }
         if (menu == Menu.CHECK_WEEDERS) {
-            // runCheckWeeders();
+            runCheckWeeders(crewAttendances, currDateTime);
         }
+    }
+
+    private void runCheckWeeders(CrewAttendances crewAttendances, LocalDateTime currDateTime) {
+        outputView.printWeedableCrewHeader();
+
+        WeedableCrewDtos dtos = makeWeedableCrewDtos(crewAttendances, currDateTime);
+
+        for (WeedableCrewDto dto : dtos.getWeedableCrewDtos()) {
+            outputView.printWeedableCrewBody(dto);
+        }
+    }
+
+    // 제적 위험자는 제적 대상자, 면담 대상자, 경고 대상자순으로 출력
+    // 대상 항목별 정렬 순서는 지각을 결석으로 간주하여 내림차순한다.
+    // 출석 상태가 같으면 닉네임으로 오름차순 정렬한다.
+    private WeedableCrewDtos makeWeedableCrewDtos(CrewAttendances crewAttendances,
+                                                  LocalDateTime currDateTime) {
+        List<CrewAttendance> crewAttendanceList = crewAttendances.getCrewAttendances();
+        List<WeedableCrewDto> dtoList = crewAttendanceList.stream().map(crewAttendance -> {
+                    crewAttendance.calculateAndSetCounts(currDateTime);
+                    String crewName = crewAttendance.getCrewName();
+                    int absenceCount = crewAttendance.getActualAbsenceCount();
+                    int lateCount = crewAttendance.getLateCount();
+                    CrewStatus crewStatus = CrewStatus.judgeCrewStatus(crewAttendance.getCalculatedAbsenceCount());
+
+                    return new WeedableCrewDto(crewName, absenceCount, lateCount, crewStatus.getCrewStatusKor());
+                })
+                // calculatedAbsences 내림차순, 같으면 이름 오름차순
+                .sorted(
+                        Comparator.comparingInt(
+                                        (WeedableCrewDto dto) -> (dto.getLateCount() / 3) + dto.getAbsenceCount())
+                                .reversed()
+                                .thenComparing(WeedableCrewDto::getName)
+                )
+                .toList();
+
+        // 출석 상태가 같으면, 닉네임으로 오름차순한다.
+        return new WeedableCrewDtos(dtoList);
     }
 
     private void runCheckAttendanceMonthly(CrewCatalog crewCatalog, CrewAttendances crewAttendances,
@@ -65,7 +106,6 @@ public class AttendanceController {
         outputView.printNickNameInputPrompt();
         Crew crew = inputHandler.inputNickName(crewCatalog);
         CrewAttendance crewAttendance = crewAttendances.findCrewAttendanceByName(crew.getName());
-        // 여기서 히스토리를 돌면서 프린트 하면 안될거같음.
         // 날짜 순서대로 Iteration (이번달 1일부터 오늘 날짜 이전날까지) !!!!!!!! 완.
         // 해당 날짜 crewAttendanceHistory에서 찾아서 print 하면서, (!HOLIDAY && !WEEKEND 일때만 제외하고 print)
         crewAttendance.initCountsToZero(); // 0으로 counts 다 초기화
@@ -85,7 +125,7 @@ public class AttendanceController {
             // 해당 크루의 ActualAbsenceCount 증가
             if (indexDateTime == null) {
                 outputView.printAttendResultPromptForNoHistory(indexDate, ABSENCE.getKorState());
-                crewAttendance.encreaseActualAbsenceCount();
+                crewAttendance.increaseActualAbsenceCount();
             }
             // 이번날짜(indexDateTime)가 출석부에 있으면 출력
             if (indexDateTime != null) {
@@ -94,13 +134,13 @@ public class AttendanceController {
                 String attendanceStateKor = attendanceState.getKorState();
                 outputView.printAttendResultPrompt(indexDateTime, attendanceStateKor);
                 if (attendanceState == SUCCESS) {
-                    crewAttendance.encreaseSuccessCount();
+                    crewAttendance.increaseSuccessCount();
                 }
                 if (attendanceState == LATE) {
-                    crewAttendance.encreaseLateCount();
+                    crewAttendance.increaseLateCount();
                 }
                 if (attendanceState == ABSENCE) {
-                    crewAttendance.encreaseActualAbsenceCount();
+                    crewAttendance.increaseActualAbsenceCount();
                 }
             }
         }
