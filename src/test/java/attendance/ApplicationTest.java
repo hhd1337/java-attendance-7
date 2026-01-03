@@ -89,6 +89,22 @@ class ApplicationTest extends NsTest {
         );
     }
 
+    @Test
+    void 제적_위험자_확인_기능_테스트() {
+        assertNowTest(
+                () -> {
+                    runException("4");
+                    assertThat(output()).contains(
+                            "- 빙티: 결석 3회, 지각 3회 (제적)",
+                            "- 빙봉: 결석 2회, 지각 4회 (제적)",
+                            "- 이든: 결석 2회, 지각 4회 (제적)",
+                            "- 쿠키: 결석 2회, 지각 2회 (경고)"
+                    );
+                },
+                LocalDate.of(2024, 12, 13).atStartOfDay()
+        );
+    }
+
     @Override
     protected void runMain() {
         Application.main(new String[]{});
